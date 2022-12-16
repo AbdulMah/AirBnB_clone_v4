@@ -1,0 +1,81 @@
+*args and **kwargs in python explained
+August 04, 2013
+
+Hi there folks. I have come to see that most new python programmers have a hard time figuring out the *args and **kwargs magic variables. So what are they? First of all let me tell you that it is not necessary to write *args or **kwargs. Only the * (aesteric) is necessary. You could have also written *var and **vars. Writing *args and **kwargs is just a convention. So now lets take a look at *args first.
+Usage of *args
+
+*args and **kwargs are mostly used in function definitions. *args and **kwargs allow you to pass a variable number of arguments to a function. What does variable mean here is that you do not know before hand that how many arguments can be passed to your function by the user so in this case you use these two keywords. *args is used to send a non-keyworded variable length argument list to the function. Here’s an example to help you get a clear idea:
+
+def test_var_args(f_arg, *argv):
+    print "first normal arg:", f_arg
+    for arg in argv:
+        print "another arg through *argv :", arg
+
+test_var_args('yasoob','python','eggs','test')
+
+Cela produit le résultat suivant :
+
+first normal arg: yasoob
+another arg through *argv : python
+another arg through *argv : eggs
+another arg through *argv : test
+
+I hope this cleared away any confusion that you had. So now lets talk about **kwargs
+Usage of **kwargs
+
+**kwargs allows you to pass keyworded variable length of arguments to a function. You should use **kwargs if you want to handle named arguments in a function. Here is an example to get you going with it:
+
+def greet_me(**kwargs):
+    if kwargs is not None:
+        for key, value in kwargs.iteritems():
+            print "%s == %s" %(key,value)
+ 
+>>> greet_me(name="yasoob")
+name == yasoob
+
+Vous pouvez donc voir comment nous avons géré une liste d'arguments avec mots-clés dans notre fonction. Ce n'est que la base de **kwargset vous pouvez voir à quel point c'est utile. Parlons maintenant de la façon dont vous pouvez utiliser *argset **kwargs pour appeler une fonction avec une liste ou un dictionnaire d'arguments.
+Using *args and **kwargs to call a function
+
+Nous allons donc voir ici comment appeler une fonction en utilisant *argset **kwargs. Considérez simplement que vous avez cette petite fonction:
+
+def test_args_kwargs(arg1, arg2, arg3):
+    print "arg1:", arg1
+    print "arg2:", arg2
+    print "arg3:", arg3
+
+Maintenant, vous pouvez utiliser *argsou **kwargspour passer des arguments à cette petite fonction. Voici comment procéder :
+
+# first with *args
+>>> args = ("two", 3,5)
+>>> test_args_kwargs(*args)
+arg1: two
+arg2: 3
+arg3: 5
+
+# now with **kwargs:
+>>> kwargs = {"arg3": 3, "arg2": "two","arg1":5}
+>>> test_args_kwargs(**kwargs)
+arg1: 5
+arg2: two
+arg3: 3
+
+Order of using *args, **kwargs and formal args
+
+So if you want to use all three of these in functions then the order is
+
+some_func(fargs,*args,**kwargs)
+
+J'espère que vous avez compris l'utilisation de *argset **kwargs. Si vous avez des problèmes ou des confusions avec cela, n'hésitez pas à commenter ci-dessous. Pour une étude plus approfondie, je suggère les documents python officiels sur la définition des fonctions et *argset **kwargssur stackoverflow .
+You might also like:
+
+    Making a url shortener in python
+    20 Python libraries you can’t live without
+    Targeting python 2 and 3 at the same time.
+
+You might also like
+
+    👉 Making a url shortener in python
+    👉 Python socket network programming 
+
+    python 
+

@@ -1,0 +1,260 @@
+uuid— Objets UUID selon RFC 4122
+
+Code source : Lib/uuid.py
+
+Ce module fournit des informations immuables UUIDobjets (les UUIDclasser) et les fonctions uuid1(), uuid3(), uuid4(), uuid5()pour génération des UUID des versions 1, 3, 4 et 5 comme spécifié dans la RFC 4122 .
+
+Si tout ce que vous voulez est un identifiant unique, vous devriez probablement appeler uuid1()ou uuid4(). Notez que uuid1()peut compromettre la vie privée puisqu'il crée un UUID contenant l'adresse réseau de l'ordinateur. uuid4()crée un UUID aléatoire.
+
+En fonction de la prise en charge de la plate-forme sous-jacente, uuid1()peut ou peut ne renvoie pas un UUID "sûr". Un UUID sûr est celui qui est généré à l'aide méthodes de synchronisation qui garantissent que deux processus ne peuvent pas obtenir le même UUID. Tous les cas de UUIDavoir un is_safeattribut qui relaie toute information sur la sécurité de l'UUID, en utilisant cette énumération :
+
+classer uuid.SafeUUID
+
+    Nouveau dans la version 3.7.
+
+    safe
+
+        L'UUID a été généré par la plate-forme de manière sécurisée pour le multitraitement.
+
+    unsafe
+
+        L'UUID n'a pas été généré de manière sécurisée pour le multitraitement.
+
+    unknown
+
+        La plate-forme ne fournit pas d'informations indiquant si l'UUID a été généré en toute sécurité ou non.
+
+classer uuid.UUID( hex=Aucun , bytes=Aucun , bytes_le=Aucun , champs=Aucun , int=Aucun , version=Aucun , * , is_safe=SafeUUID.unknown )
+
+    Créez un UUID à partir d'une chaîne de 32 chiffres hexadécimaux, d'une chaîne de 16 octets dans l'ordre gros boutien comme octets , une chaîne de 16 octets dans ordre petit boutien argument bytes_le, un tuple de six entiers (32 bits time_low , 16 bits time_mid , 16 bits time_hi_version , 8-bit clock_seq_hi_variant , 8-bit clock_seq_low , 48-bit node ) comme fields ou un seul entier de 128 bits comme int argument Lorsqu'une chaîne de chiffres hexadécimaux est donnée, des accolades, des tirets, et un préfixe URN sont tous facultatifs. Par exemple, ces les expressions donnent toutes le même UUID :
+
+    UUID('{12345678-1234-5678-1234-567812345678}')
+    UUID('12345678123456781234567812345678')
+    UUID('urn:uuid:12345678-1234-5678-1234-567812345678')
+    UUID(bytes=b'\x12\x34\x56\x78'*4)
+    UUID(bytes_le=b'\x78\x56\x34\x12\x34\x12\x78\x56' +
+                  b'\x12\x34\x56\x78\x12\x34\x56\x78')
+    UUID(fields=(0x12345678, 0x1234, 0x5678, 0x12, 0x34, 0x567812345678))
+    UUID(int=0x12345678123456781234567812345678)
+
+    Exactement l'un des hex , bytes , bytes_le , fields ou int doit être donné. L' version est facultatif ; s'il est donné, l'UUID résultant aura son la variante et le numéro de version sont définis conformément à la RFC 4122 , en remplaçant les bits dans le donné hex , bytes , bytes_le , fields ou int .
+
+    La comparaison des objets UUID est faite en comparant leurs UUID.intles attributs. Comparaison avec un objet non UUID soulève un TypeError.
+
+    str(uuid)renvoie une chaîne sous la forme 12345678-1234-5678-1234-567812345678où les 32 chiffres hexadécimaux représentent l'UUID.
+
+UUIDles instances ont ces attributs en lecture seule :
+
+UUID.bytes
+
+    L'UUID sous la forme d'une chaîne de 16 octets (contenant les six champs d'entiers en gros boutien ordre des octets).
+
+UUID.bytes_le
+
+    L'UUID sous forme de chaîne de 16 octets (avec time_low , time_mid et time_hi_version dans l'ordre des octets little-endian).
+
+UUID.fields
+
+    Un tuple des six champs entiers de l'UUID, qui sont également disponibles sous forme de six attributs individuels et deux attributs dérivés :
+
+    Champ
+    	
+
+    Sens
+
+    time_low
+    	
+
+    les 32 premiers bits de l'UUID
+
+    time_mid
+    	
+
+    les 16 bits suivants de l'UUID
+
+    time_hi_version
+    	
+
+    les 16 bits suivants de l'UUID
+
+    clock_seq_hi_variant
+    	
+
+    les 8 bits suivants de l'UUID
+
+    clock_seq_low
+    	
+
+    les 8 bits suivants de l'UUID
+
+    node
+    	
+
+    les 48 derniers bits de l'UUID
+
+    time
+    	
+
+    l'horodatage 60 bits
+
+    clock_seq
+    	
+
+    le numéro de séquence 14 bits
+
+UUID.hex
+
+    L'UUID sous forme de chaîne hexadécimale de 32 caractères.
+
+UUID.int
+
+    L'UUID sous la forme d'un entier de 128 bits.
+
+UUID.urn
+
+    L'UUID en tant qu'URN comme spécifié dans la RFC 4122 .
+
+UUID.variant
+
+    La variante UUID, qui détermine la disposition interne de l'UUID. Ce sera une des constantes RESERVED_NCS, RFC_4122, RESERVED_MICROSOFT, ou RESERVED_FUTURE.
+
+UUID.version
+
+    Le numéro de version de l'UUID (1 à 5, significatif uniquement lorsque la variante est RFC_4122).
+
+UUID.is_safe
+
+    Une énumération de SafeUUIDqui indique si la plateforme a généré l'UUID d'une manière multitraitement sécurisée.
+
+    Nouveau dans la version 3.7.
+
+La uuidmodule définit les fonctions suivantes :
+
+uuid.getnode( )
+
+    Obtenez l'adresse matérielle sous la forme d'un entier positif de 48 bits. La première fois ce s'exécute, il peut lancer un programme séparé, ce qui peut être assez lent. Je tombe les tentatives d'obtention de l'adresse matérielle échouent, nous choisissons un 48 bits aléatoire nombre avec le bit multicast (bit le moins significatif du premier octet) défini sur 1 comme recommandé dans la RFC 4122 . "Adresse matérielle" signifie le MAC adresse d'une interface réseau. Sur une machine avec plusieurs réseaux interfaces, adresses MAC universellement administrées (c'est-à-dire où la deuxième le bit le moins significatif du premier octet n'est défini ) sera préféré à adresses MAC administrées localement, mais sans aucune autre garantie de commande.
+
+    Modifié dans la version 3.7 : les adresses MAC administrées universellement sont préférées aux adresses locales adresses MAC administrées, puisque les premières sont garanties uniques au monde, alors que les seconds ne le sont pas.
+
+uuid.uuid1( nœud=Aucun , clock_seq=Aucun )
+
+    Générez un UUID à partir d'un ID d'hôte, d'un numéro de séquence et de l'heure actuelle. Si nœud n'est pas donné, getnode()est utilisé pour obtenir l'adresse matérielle. Si clock_seq est donné, il est utilisé comme numéro de séquence ; sinon un hasard Un numéro de séquence de 14 bits est choisi.
+
+uuid.uuid3( noms , nom )
+
+    Générer un UUID basé sur le hachage MD5 d'un identifiant d'espace de noms (qui est un UUID) et un nom (qui est une chaîne).
+
+uuid.uuid4( )
+
+    Générer un UUID aléatoire.
+
+uuid.uuid5( noms , nom )
+
+    Générer un UUID basé sur le hachage SHA-1 d'un identifiant d'espace de noms (qui est un UUID) et un nom (qui est une chaîne).
+
+La uuidmodule définit les identifiants d'espace de noms suivants à utiliser avec uuid3()ou uuid5().
+
+uuid.NAMESPACE_DNS
+
+    Lorsque cet espace de noms est spécifié, la nom est un domaine complet Nom.
+
+uuid.NAMESPACE_URL
+
+    Lorsque cet espace de noms est spécifié, la nom chaîne de
+
+uuid.NAMESPACE_OID
+
+    Lorsque cet espace de noms est spécifié, la nom est un OID ISO.
+
+uuid.NAMESPACE_X500
+
+    Lorsque cet espace de noms est spécifié, la nom est un DN X.500 dans DER ou un format de sortie texte.
+
+La uuidmodule définit les constantes suivantes pour les valeurs possibles de la variantattribut:
+
+uuid.RESERVED_NCS
+
+    Réservé pour la compatibilité NCS.
+
+uuid.RFC_4122
+
+    Spécifie la disposition UUID donnée dans RFC 4122 .
+
+uuid.RESERVED_MICROSOFT
+
+    Réservé à la compatibilité Microsoft.
+
+uuid.RESERVED_FUTURE
+
+    Réservé pour définition future.
+
+Voir également
+
+RFC 4122 - Un espace de noms d'URN d'identifiant universel unique (UUID)
+
+    Cette spécification définit un espace de noms Uniform Resource Name pour les UUID, le format interne des UUID et méthodes de génération des UUID.
+
+Example
+
+Voici quelques exemples d'utilisation typique du uuidmodule:
+>>>
+
+>>> import uuid
+
+>>> # make a UUID based on the host ID and current time
+>>> uuid.uuid1()
+UUID('a8098c1a-f86e-11da-bd1a-00112444be1e')
+
+>>> # make a UUID using an MD5 hash of a namespace UUID and a name
+>>> uuid.uuid3(uuid.NAMESPACE_DNS, 'python.org')
+UUID('6fa459ea-ee8a-3ca4-894e-db77e160355e')
+
+>>> # make a random UUID
+>>> uuid.uuid4()
+
+
+UUID('16fd2706-8baf-433b-82eb-8c7fada847da')
+
+>>> # make a UUID using a SHA-1 hash of a namespace UUID and a name
+>>> uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org')
+UUID('886313e1-3b8a-5372-9b90-0c9aee199e5d')
+
+>>> # make a UUID from a string of hex digits (braces and hyphens ignored)
+>>> x = uuid.UUID('{00010203-0405-0607-0809-0a0b0c0d0e0f}')
+
+>>> # convert a UUID to a string of hex digits in standard form
+>>> str(x)
+'00010203-0405-0607-0809-0a0b0c0d0e0f'
+
+>>> # get the raw 16 bytes of the UUID
+>>> x.bytes
+b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f'
+
+>>> # make a UUID from a 16-byte string
+>>> uuid.UUID(bytes=x.bytes)
+UUID('00010203-0405-0607-0809-0a0b0c0d0e0f')
+
+Table des matières
+
+    uuid— Objets UUID selon RFC 4122
+        Exemple
+
+Rubrique précédente
+
+telnetlib— Client Telnet
+Sujet suivant
+
+socketserver— Un cadre pour les serveurs de réseau
+Cette page
+
+    Signaler un bug
+    Afficher la source
+
+«
+
+    indice
+    modules |
+    suivant |
+    précédent |
+    logo python Python »
+
